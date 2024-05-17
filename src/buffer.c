@@ -1926,8 +1926,10 @@ static void
 gnu_flush_read (void)
 {
   flush_read_ptr = simple_flush_read; /* Avoid recursion */
+  __pac_macro(flush_read_ptr);
   _gnu_flush_read ();
   flush_read_ptr = gnu_flush_read;
+  __pac_macro(flush_read_ptr);
 }
 
 static void
@@ -2020,8 +2022,10 @@ static void
 gnu_flush_write (size_t buffer_level)
 {
   flush_write_ptr = simple_flush_write; /* Avoid recursion */
+  __pac_macro(flush_write_ptr);
   _gnu_flush_write (buffer_level);
   flush_write_ptr = gnu_flush_write;
+  __pac_macro(flush_write_ptr);
 }
 
 void
@@ -2040,7 +2044,9 @@ void
 open_archive (enum access_mode wanted_access)
 {
   flush_read_ptr = gnu_flush_read;
+  __pac_macro(flush_read_ptr);
   flush_write_ptr = gnu_flush_write;
+  __pac_macro(flush_write_ptr);
 
   _open_archive (wanted_access);
   switch (wanted_access)

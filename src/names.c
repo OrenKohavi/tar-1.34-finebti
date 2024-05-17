@@ -302,6 +302,8 @@ add_exclude_array (char const * const * fv, int opts)
 static void
 handle_file_selection_option (int key, const char *arg)
 {
+  bool (*cachedir_file_p_ptr)(int) = cachedir_file_p;
+  __pac_macro(cachedir_file_p_ptr);
   switch (key)
     {
     case EXCLUDE_BACKUPS_OPTION:
@@ -314,17 +316,17 @@ handle_file_selection_option (int key, const char *arg)
 
     case EXCLUDE_CACHES_OPTION:
       add_exclusion_tag ("CACHEDIR.TAG", exclusion_tag_contents,
-			 cachedir_file_p);
+			 cachedir_file_p_ptr);
       break;
 
     case EXCLUDE_CACHES_UNDER_OPTION:
       add_exclusion_tag ("CACHEDIR.TAG", exclusion_tag_under,
-			 cachedir_file_p);
+			 cachedir_file_p_ptr);
       break;
 
     case EXCLUDE_CACHES_ALL_OPTION:
       add_exclusion_tag ("CACHEDIR.TAG", exclusion_tag_all,
-			 cachedir_file_p);
+			 cachedir_file_p_ptr);
       break;
 
     case EXCLUDE_IGNORE_OPTION:
@@ -382,7 +384,9 @@ handle_file_selection_option (int key, const char *arg)
       break;
 
     case 'X':
-      if (add_exclude_file (add_exclude, excluded, arg, EXCLUDE_OPTIONS, '\n')
+      void (*add_exclude_ptr)(struct exclude *, const char *, int) = add_exclude;
+      __pac_macro(add_exclude_ptr);
+      if (add_exclude_file (add_exclude_ptr, excluded, arg, EXCLUDE_OPTIONS, '\n')
 	  != 0)
 	{
 	  int e = errno;
@@ -1507,7 +1511,8 @@ merge_sort_sll (struct name *list, int length,
 
   if (length == 2)
     {
-      if ((*compare) (list, SUCCESSOR (list)) > 0)
+      int __ans = __call_macro(compare, list, SUCCESSOR(list));
+      if (__ans > 0)
 	{
 	  result = SUCCESSOR (list);
 	  SUCCESSOR (result) = list;
@@ -1531,8 +1536,9 @@ merge_sort_sll (struct name *list, int length,
   second_list = merge_sort_sll (second_list, second_length, compare);
 
   merge_point = &result;
-  while (first_list && second_list)
-    if ((*compare) (first_list, second_list) < 0)
+  while (first_list && second_list){
+    int __ans = __call_macro(compare, first_list, second_list);
+    if (__ans < 0)
       {
 	cursor = SUCCESSOR (first_list);
 	*merge_point = first_list;
@@ -1546,6 +1552,7 @@ merge_sort_sll (struct name *list, int length,
 	merge_point = &SUCCESSOR (second_list);
 	second_list = cursor;
       }
+  }
   if (first_list)
     *merge_point = first_list;
   else
@@ -1812,7 +1819,11 @@ collect_and_sort_names (void)
       tar_stat_destroy (&st);
     }
 
-  namelist = merge_sort (namelist, num_names, compare_names);
+
+  int (*compare_names_ptr)(const struct name *, const struct name *) = compare_names;
+  __pac_macro(compare_names_ptr);
+
+  namelist = merge_sort(namelist, num_names, compare_names_ptr);
 
   num_names = 0;
   nametab = hash_initialize (0, 0, name_hash, name_compare, NULL);
@@ -1856,7 +1867,10 @@ collect_and_sort_names (void)
   nametail = prev_name;
   hash_free (nametab);
 
-  namelist = merge_sort (namelist, num_names, compare_names_found);
+  int (*compare_names_found_ptr)(const struct name *, const struct name *) = compare_names_found;
+  __pac_macro(compare_names_found_ptr);
+
+  namelist = merge_sort(namelist, num_names, compare_names_found_ptr);
 
   if (listed_incremental_option)
     {

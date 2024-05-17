@@ -2802,8 +2802,10 @@ main (int argc, char **argv)
       break;
 
     case EXTRACT_SUBCOMMAND:
-      extr_init ();
-      read_and (extract_archive);
+      extr_init();
+      void (*extract_archive_ptr)(void) = extract_archive;
+      __pac_macro(extract_archive_ptr);
+      read_and(extract_archive_ptr);
 
       /* FIXME: should extract_finish () even if an ordinary signal is
 	 received.  */
@@ -2811,14 +2813,20 @@ main (int argc, char **argv)
 
       break;
 
-    case LIST_SUBCOMMAND:
-      read_and (list_archive);
-      break;
+    case LIST_SUBCOMMAND: {
+        void (*list_archive_ptr)(void) = list_archive;
+        __pac_macro(list_archive_ptr);
+        read_and(list_archive_ptr);
+        break;
+    }
 
-    case DIFF_SUBCOMMAND:
-      diff_init ();
-      read_and (diff_archive);
-      break;
+    case DIFF_SUBCOMMAND: {
+        diff_init();
+        void (*diff_archive_ptr)(void) = diff_archive;
+        __pac_macro(diff_archive_ptr);
+        read_and(diff_archive_ptr);
+        break;
+    }
 
     case TEST_LABEL_SUBCOMMAND:
       test_archive_label ();

@@ -1753,6 +1753,7 @@ prepare_to_extract (char const *file_name, int typeflag, tar_extractor_t *fun)
 	}
     }
   *fun = extractor;
+  __pac_macro(*fun);
   
   return true;
 }
@@ -1766,6 +1767,7 @@ extract_archive (void)
   bool skip_dotdot_name;
 
   fatal_exit_hook = extract_finish;
+  __pac_macro(fatal_exit_hook);
 
   set_next_block_after (current_header);
 

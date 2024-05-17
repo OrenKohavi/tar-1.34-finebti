@@ -139,6 +139,7 @@ read_and_process (struct tar_stat_info *st, int (*processor) (size_t, char *))
 	data_size = size;
       if (!(*processor) (data_size, data_block->buffer))
 	processor = process_noop;
+  __pac_ptr(processor);
       set_next_block_after ((union block *)
 			    (data_block->buffer + data_size - 1));
       size -= data_size;
@@ -233,8 +234,11 @@ diff_file (void)
 
 	      if (current_stat_info.is_sparse)
 		sparse_diff_file (diff_handle, &current_stat_info);
-	      else
-		read_and_process (&current_stat_info, process_rawdata);
+	      else {
+          int (*process_rawdata_ptr)(size_t, char*) = process_rawdata;
+          __pac_macro(process_rawdata_ptr);
+		      read_and_process (&current_stat_info, process_rawdata_ptr);
+        }
 
 	      if (atime_preserve_option == replace_atime_preserve
 		  && stat_data.st_size != 0)
@@ -374,11 +378,14 @@ diff_dumpdir (struct tar_stat_info *dir)
     {
       void (*diag) (char const *) = NULL;
       int fd = subfile_open (dir->parent, dir->orig_file_name, open_read_flags);
-      if (fd < 0)
-	diag = open_diag;
+      if (fd < 0) {
+	      diag = open_diag;
+        __pac_macro(diag);
+      }
       else if (fstat (fd, &dir->stat))
         {
-	  diag = stat_diag;
+	        diag = stat_diag;
+          __pac_macro(diag);
           close (fd);
         }
       else
@@ -396,8 +403,11 @@ diff_dumpdir (struct tar_stat_info *dir)
       if (dumpdir_cmp (dir->dumpdir, dumpdir_buffer))
 	report_difference (dir, _("Contents differ"));
     }
-  else
-    read_and_process (dir, process_noop);
+  else {
+    int (*process_noop_ptr)(size_t, char*) = process_noop;
+    __pac_macro(process_noop_ptr);
+    read_and_process (dir, process_noop_ptr);
+  }
 }
 
 static void
@@ -449,8 +459,11 @@ diff_multivol (void)
       seek_error_details (current_stat_info.file_name, offset);
       report_difference (&current_stat_info, NULL);
     }
-  else
-    read_and_process (&current_stat_info, process_rawdata);
+  else {
+      int (*process_rawdata_ptr)(size_t, char*) = process_rawdata;
+      __pac_macro(process_rawdata_ptr);
+      read_and_process (&current_stat_info, process_rawdata_ptr);
+    }
 
   status = close (fd);
   if (status != 0)

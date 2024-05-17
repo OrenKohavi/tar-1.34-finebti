@@ -1168,8 +1168,9 @@ file_removed_diag (const char *name, bool top_level,
 		quotearg_colon (name)));
       set_exit_status (TAREXIT_DIFFERS);
     }
-  else
-    diagfn (name);
+  else {
+    __call_macro_noreturn(diagfn, name);
+  }
 }
 
 /* Fork, aborting if unsuccessful.  */

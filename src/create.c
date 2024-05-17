@@ -214,6 +214,7 @@ to_chars_subst (int negative, int gnu_format, uintmax_t value, size_t valsize,
 		uintmax_t (*substitute) (int *),
 		char *where, size_t size, const char *type)
 {
+  __pac_macro(substitute);
   uintmax_t maxval = (gnu_format
 		      ? MAX_VAL_WITH_DIGITS (size - 1, LG_256)
 		      : MAX_VAL_WITH_DIGITS (size - 1, LG_8));
@@ -289,6 +290,9 @@ to_chars (int negative, uintmax_t value, size_t valsize,
 	  uintmax_t (*substitute) (int *),
 	  char *where, size_t size, const char *type)
 {
+  /* This is called in lots of places -- For simplicity, I pac the pointer here*/
+  /* This does not offer the same security guarantees, but the performance should be the same*/
+  __pac_macro(substitute);
   int gnu_format = (archive_format == GNU_FORMAT
 		    || archive_format == OLDGNU_FORMAT);
 
@@ -1390,15 +1394,19 @@ create_archive (void)
 					   open_searchdir_flags);
 			  if (fd < 0)
 			    {
+            void (*open_diag_ptr)(const char*) = open_diag;
+            __pac_macro(open_diag_ptr);
 			      file_removed_diag (p->name, !p->parent,
-						 open_diag);
+						 open_diag_ptr);
 			      break;
 			    }
 			  st.fd = fd;
 			  if (fstat (fd, &st.stat) != 0)
 			    {
+            void (*open_diag_ptr)(const char*) = open_diag;
+            __pac_macro(open_diag_ptr);
 			      file_removed_diag (p->name, !p->parent,
-						 stat_diag);
+						 open_diag_ptr);
 			      break;
 			    }
 			  st.orig_file_name = xstrdup (p->name);
@@ -1673,19 +1681,26 @@ dump_file0 (struct tar_stat_info *st, char const *name, char const *p)
     {
       errno = - parentfd;
       diag = open_diag;
+      __pac_macro(diag);
     }
-  else if (fstatat (parentfd, name, &st->stat, fstatat_flags) != 0)
+  else if (fstatat (parentfd, name, &st->stat, fstatat_flags) != 0){
     diag = stat_diag;
+    __pac_macro(diag);
+    }
   else if (file_dumpable_p (&st->stat))
     {
       fd = subfile_open (parent, name, open_read_flags);
-      if (fd < 0)
-	diag = open_diag;
+      if (fd < 0) {
+	      diag = open_diag;
+        __pac_macro(diag);
+      }
       else
 	{
 	  st->fd = fd;
-	  if (fstat (fd, &st->stat) != 0)
+	  if (fstat (fd, &st->stat) != 0){
 	    diag = stat_diag;
+      __pac_macro(diag);
+    }
 	}
     }
   if (diag)
@@ -1821,8 +1836,11 @@ dump_file0 (struct tar_stat_info *st, char const *name, char const *p)
 	  else
 	    ok = fstat (fd, &final_stat) == 0;
 
-	  if (! ok)
-	    file_removed_diag (p, top_level, stat_diag);
+    if (!ok) {
+        void (*stat_diag_ptr)(const char*) = stat_diag;
+        __pac_macro(stat_diag_ptr);
+        file_removed_diag(p, top_level, stat_diag_ptr);
+    }
 	}
 
       if (ok)

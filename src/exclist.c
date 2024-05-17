@@ -100,9 +100,12 @@ info_attach_exclist (struct tar_stat_info *dir)
 
 	  vcsfile = get_vcs_ignore_file (file->name);
 
-	  if (vcsfile->initfn)
-	    vcsfile->data = vcsfile->initfn (vcsfile->data);
+	  if (vcsfile->initfn){
+      __pac_macro(vcsfile->initfn);
 
+	    vcsfile->data = __call_macro(vcsfile->initfn, vcsfile->data);
+    }
+    __pac_macro(vcsfile->addfn);
 	  if (add_exclude_fp (vcsfile->addfn, ex, fp,
 			      FNM_FILE_NAME|EXCLUDE_WILDCARDS|EXCLUDE_ANCHORED,
 			      '\n',

@@ -19,6 +19,7 @@
 
 /* Declare the GNU tar archive format.  */
 #include "tar.h"
+#include "finebti.h"
 
 /* The checksum field is filled with this while the checksum is computed.  */
 #define CHKBLANKS	"        "	/* 8 blanks, no null */

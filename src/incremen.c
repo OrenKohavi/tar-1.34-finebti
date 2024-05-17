@@ -786,21 +786,26 @@ scan_directory (struct tar_stat_info *st)
 		    {
 		      errno = - fd;
 		      diag = open_diag;
+          __pac_macro(diag);
 		    }
 		  else if (fstatat (fd, entry + 1, &stsub.stat,
-				    fstatat_flags) != 0)
+				    fstatat_flags) != 0){
 		    diag = stat_diag;
+            __pac_macro(diag);}
 		  else if (S_ISDIR (stsub.stat.st_mode))
 		    {
 		      int subfd = subfile_open (st, entry + 1,
 						open_read_flags);
-		      if (subfd < 0)
+		      if (subfd < 0){
 			diag = open_diag;
+      __pac_macro(diag);}
 		      else
 			{
 			  stsub.fd = subfd;
-			  if (fstat (subfd, &stsub.stat) != 0)
+			  if (fstat (subfd, &stsub.stat) != 0) {
 			    diag = stat_diag;
+          __pac_macro(diag);
+        }
 			}
 		    }
 

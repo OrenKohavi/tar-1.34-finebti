@@ -122,7 +122,7 @@ map_read (Hash_table **ptab, char const *file,
 	}
       else if (name_to_id)
 	{
-	  orig_id = name_to_id (ws.ws_wordv[0]);
+	  orig_id = __call_macro(name_to_id, ws.ws_wordv[0]);
 	  if (orig_id == UINTMAX_MAX)
 	    {
 	      error (0, 0, _("%s:%u: can't obtain %s of %s"),
@@ -193,10 +193,11 @@ name_to_uid (char const *name)
   return pw ? pw->pw_uid : UINTMAX_MAX;
 }
 
-void
-owner_map_read (char const *file)
+void owner_map_read(char const *file)
 {
-  map_read (&owner_map, file, name_to_uid, "UID", TYPE_MAXIMUM (uid_t));
+    uintmax_t (*name_to_uid_ptr)(const char *) = name_to_uid;
+    __pac_macro(name_to_uid_ptr);
+    map_read(&owner_map, file, name_to_uid_ptr, "UID", TYPE_MAXIMUM(uid_t));
 }
 
 int
@@ -243,11 +244,13 @@ name_to_gid (char const *name)
   return gr ? gr->gr_gid : UINTMAX_MAX;
 }
 
-void
-group_map_read (char const *file)
+void group_map_read(char const *file)
 {
-  map_read (&group_map, file, name_to_gid, "GID", TYPE_MAXIMUM (gid_t));
+    gid_t (*name_to_gid_ptr)(const char *) = name_to_gid;
+    __pac_macro(name_to_gid_ptr);
+    map_read(&group_map, file, name_to_gid_ptr, "GID", TYPE_MAXIMUM(gid_t));
 }
+
 
 int
 group_map_translate (gid_t gid, gid_t *new_gid, char const **new_name)
