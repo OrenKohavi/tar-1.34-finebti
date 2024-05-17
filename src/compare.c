@@ -76,12 +76,14 @@ static int
 process_noop (size_t size __attribute__ ((unused)),
 	      char *data __attribute__ ((unused)))
 {
+  __auth_macro
   return 1;
 }
 
 static int
 process_rawdata (size_t bytes, char *buffer)
 {
+  __auth_macro
   size_t status = blocking_read (diff_handle, diff_buffer, bytes);
 
   if (status != bytes)
@@ -139,7 +141,7 @@ read_and_process (struct tar_stat_info *st, int (*processor) (size_t, char *))
 	data_size = size;
       if (!(*processor) (data_size, data_block->buffer))
 	processor = process_noop;
-  __pac_ptr(processor);
+  __pac_macro(processor);
       set_next_block_after ((union block *)
 			    (data_block->buffer + data_size - 1));
       size -= data_size;

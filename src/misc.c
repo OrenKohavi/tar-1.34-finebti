@@ -1088,6 +1088,7 @@ close_diag (char const *name)
 void
 open_diag (char const *name)
 {
+  __auth_macro
   if (ignore_failed_read_option)
     {
       if (WARNING_ENABLED(WARN_FAILED_READ))
@@ -1148,6 +1149,7 @@ seek_diag_details (char const *name, off_t offset)
 void
 stat_diag (char const *name)
 {
+  __auth_macro
   if (ignore_failed_read_option)
     {
       if (WARNING_ENABLED(WARN_FAILED_READ))
@@ -1169,7 +1171,7 @@ file_removed_diag (const char *name, bool top_level,
       set_exit_status (TAREXIT_DIFFERS);
     }
   else {
-    __call_macro_noreturn(diagfn, name);
+    __call_macro_voidreturn(diagfn, name);
   }
 }
 

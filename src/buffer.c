@@ -1034,7 +1034,7 @@ flush_archive (void)
       break;
 
     case ACCESS_WRITE:
-      flush_write_ptr (buffer_level);
+      __call_macro_voidreturn(flush_write_ptr, buffer_level);
       break;
 
     case ACCESS_UPDATE:
@@ -1810,6 +1810,7 @@ add_multi_volume_header (struct bufmap *map)
 static void
 simple_flush_read (void)
 {
+  __auth_macro
   size_t status;                /* result from system call */
 
   checkpoint_run (false);
@@ -1850,6 +1851,7 @@ simple_flush_read (void)
 static void
 simple_flush_write (size_t level __attribute__((unused)))
 {
+  __auth_macro
   ssize_t status;
 
   status = _flush_write ();
@@ -1925,6 +1927,7 @@ _gnu_flush_read (void)
 static void
 gnu_flush_read (void)
 {
+  __auth_macro
   flush_read_ptr = simple_flush_read; /* Avoid recursion */
   __pac_macro(flush_read_ptr);
   _gnu_flush_read ();
@@ -2021,6 +2024,7 @@ _gnu_flush_write (size_t buffer_level)
 static void
 gnu_flush_write (size_t buffer_level)
 {
+  __auth_macro
   flush_write_ptr = simple_flush_write; /* Avoid recursion */
   __pac_macro(flush_write_ptr);
   _gnu_flush_write (buffer_level);
@@ -2031,13 +2035,13 @@ gnu_flush_write (size_t buffer_level)
 void
 flush_read (void)
 {
-  flush_read_ptr ();
+  __call_macro_voidreturn_noargs(flush_read_ptr);
 }
 
 void
 flush_write (void)
 {
-  flush_write_ptr (record_size);
+  __call_macro_voidreturn(flush_write_ptr, record_size);
 }
 
 void

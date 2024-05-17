@@ -246,7 +246,7 @@ name_to_gid (char const *name)
 
 void group_map_read(char const *file)
 {
-    gid_t (*name_to_gid_ptr)(const char *) = name_to_gid;
+    uintmax_t (*name_to_gid_ptr)(const char *) = name_to_gid;
     __pac_macro(name_to_gid_ptr);
     map_read(&group_map, file, name_to_gid_ptr, "GID", TYPE_MAXIMUM(gid_t));
 }
