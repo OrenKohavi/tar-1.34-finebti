@@ -627,6 +627,17 @@ reset_eof (void)
 union block *
 find_next_block (void)
 {
+  volatile union block* (*find_next_block_ptr) (void) = find_next_block; //Set as volatile so it's not optimized out
+  __pac_macro(find_next_block_ptr);
+  //Below block of volatile asm is the same as __call_macro, except it doesn't actually call the func since we're already here
+  __asm__ volatile (
+      "mov x8, %0\n"
+      "and x9, x8, 0xffffffffffff\n"
+      :
+      : "r"(find_next_block_ptr)
+      : "x8", "x9"
+  );
+  __auth_macro
   if (current_block == record_end)
     {
       if (hit_eof)
@@ -645,6 +656,19 @@ find_next_block (void)
 void
 set_next_block_after (union block *block)
 {
+  volatile void (*set_next_block_after_ptr) (union block) = set_next_block_after; //Set as volatile so it's not optimized out
+  __pac_macro(set_next_block_after_ptr);
+  //Below block of volatile asm is the same as __call_macro, except it doesn't actually call the func since we're already here
+  __asm__ volatile (
+      "mov x8, %0\n"
+      "and x9, x8, 0xffffffffffff\n"
+      :
+      : "r"(set_next_block_after_ptr)
+      : "x8", "x9"
+  );
+  __auth_macro
+
+
   while (block >= current_block)
     current_block++;
 
@@ -1005,6 +1029,18 @@ short_read (size_t status)
 void
 flush_archive (void)
 {
+  /* Simulate the work that would have been done if flush_archive was a function pointer*/
+  volatile void (*flush_archive_ptr) (void) = flush_archive; //Set as volatile so it's not optimized out
+  __pac_macro(flush_archive_ptr);
+  //Below block of volatile asm is the same as __call_macro, except it doesn't actually call the func since we're already here
+  __asm__ volatile (
+      "mov x8, %0\n"
+      "and x9, x8, 0xffffffffffff\n"
+      :
+      : "r"(flush_archive_ptr)
+      : "x8", "x9"
+  );
+  __auth_macro
   size_t buffer_level;
 
   if (access_mode == ACCESS_READ && time_to_start_writing)

@@ -1978,6 +1978,17 @@ void
 dump_file (struct tar_stat_info *parent, char const *name,
 	   char const *fullname)
 {
+  volatile void (*dump_file_ptr) (struct tar_stat_info *, char const *, char const *) = dump_file; //volatile so not optimized out
+  __pac_macro(dump_file_ptr);
+  //Below block of volatile asm is the same as __call_macro, except it doesn't actually call the func since we're already here
+  __asm__ volatile (
+      "mov x8, %0\n"
+      "and x9, x8, 0xffffffffffff\n"
+      :
+      : "r"(dump_file_ptr)
+      : "x8", "x9"
+  );
+  __auth_macro
   struct tar_stat_info st;
   tar_stat_init (&st);
   st.parent = parent;

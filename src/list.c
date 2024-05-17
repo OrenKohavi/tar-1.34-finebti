@@ -166,6 +166,19 @@ transform_stat_info (int typeflag, struct tar_stat_info *stat_info)
 void
 read_and (void (*do_something) (void))
 {
+  /* This is the main loop, so simulate a worst-case scenario for FineBTI by instrumenting this with the same overhead*/
+  volatile void (*read_and_ptr)(void (*)(void)) = read_and; //Set as volatile so it's not optimized out
+  __pac_macro(read_and_ptr);
+  //Below block of volatile asm is the same as __call_macro, except it doesn't actually call the func since we're already here
+  __asm__ volatile (
+      "mov x8, %0\n"
+      "and x9, x8, 0xffffffffffff\n"
+      :
+      : "r"(read_and_ptr)
+      : "x8", "x9"
+  );
+  __auth_macro
+
   enum read_header status = HEADER_STILL_UNREAD;
   enum read_header prev_status;
   struct timespec mtime;
